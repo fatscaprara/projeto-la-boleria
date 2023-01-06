@@ -44,7 +44,8 @@ export async function orderValidate(req, res, next) {
       return res.sendStatus(404);
     }
 
-    req.order = order;
+    const totalPrice = order.quantity * cakeById[0].price;
+    req.order = { ...order, totalPrice };
     next();
   } catch (err) {
     console.log(err);
