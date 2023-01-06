@@ -113,3 +113,73 @@ export async function getOrders(req, res) {
     return res.sendStatus(500);
   }
 }
+
+export async function getOrderById(req, res) {
+  const { id } = req;
+
+  try {
+    const { rows: orders } = await connection.query(
+      `
+      SELECT
+        c.id AS "clientId", c.name AS "clientName", c.address AS "clientAddress", c.phone AS "clientPhone",
+        ca.id AS "cakeId", ca.name AS "cakeName", ca.price AS "cakePrice", ca.description AS "cakeDescription", ca.image AS "cakeImage",
+        o.id AS "orderId", o."createdAt", o.quantity, o."totalPrice"
+      FROM
+        clients c
+      JOIN
+        orders o
+      ON
+        o."clientId" = c.id
+      JOIN
+        cakes ca
+      ON
+        o."cakeId" = ca.id
+      WHERE
+        o.id = $1
+      ;
+    `,
+      [id]
+    );
+
+    const newOrders = orders.map(
+      ({
+        clientId,
+        clientName,
+        clientAddress,
+        clientPhone,
+        cakeId,
+        cakeName,
+        cakePrice,
+        cakeDescription,
+        cakeImage,
+        orderId,
+        createdAt,
+        quantity,
+        totalPrice,
+      }) => ({
+        client: {
+          id: clientId,
+          name: clientName,
+          address: clientAddress,
+          phone: clientPhone,
+        },
+        cake: {
+          id: cakeId,
+          name: cakeName,
+          price: cakePrice,
+          description: cakeDescription,
+          image: cakeImage,
+        },
+        orderId: orderId,
+        createAt: createdAt,
+        quantity: quantity,
+        totalPrice: totalPrice,
+      })
+    );
+
+    res.status(200).send(newOrders[0]);
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(500);
+  }
+}
