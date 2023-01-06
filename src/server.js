@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 
@@ -13,6 +15,7 @@ app.use(cakeRouter);
 app.use(clientRouter);
 app.use(orderRouter);
 
-app.listen(4000, () => {
-  console.log("Server listening in PORT: 4000");
+const port = process.env.PORT || 4000;
+app.listen(port, () => {
+  console.log(`Server listening in PORT: ${port}`);
 });
